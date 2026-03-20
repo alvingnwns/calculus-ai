@@ -50,3 +50,9 @@
 ## 2026-03-20 - Chat Equation Rendering Fix
 - Updated assistant chat bubbles to render markdown and inline/block math via `ReactMarkdown + remark-math + rehype-katex`.
 - Fixed raw equation text display (e.g., `$\\sin(x)$`) by applying the same math renderer stack used in the explanation panel.
+
+## 2026-03-20 - Page Component Refactor
+- Extracted major UI sections into `frontend/app/components/` (`CalculationForm`, `HistoryPanel`, `ResultCard`, `GraphPanel`, `ExplanationPanel`, `ChatPanel`).
+- Added shared component types in `frontend/app/components/types.ts`.
+- Rewrote `frontend/app/page.tsx` as a cleaner orchestration layer (state, API calls, and handler wiring only).
+- Verified frontend build after refactor with no regressions.
