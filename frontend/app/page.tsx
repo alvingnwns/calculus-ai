@@ -24,6 +24,12 @@ type PlotTrace = {
   fill?: "none" | "tozeroy";
 };
 
+type TutorMode = "hint" | "socratic" | "full";
+type ChatMessage = {
+  role: "user" | "assistant";
+  content: string;
+};
+
 const Plot = dynamic(() => import("react-plotly.js"), { ssr: false });
 
 const SYMBOLS = ["sin(", "cos(", "tan(", "log(", "e^(", "^", "sqrt(", "pi", "oo", "I"];
@@ -73,6 +79,11 @@ export default function Home() {
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [plotTraces, setPlotTraces] = useState<PlotTrace[]>([]);
   const [plotMessage, setPlotMessage] = useState("");
+  const [sessionId, setSessionId] = useState("");
+  const [chatMode, setChatMode] = useState<TutorMode>("socratic");
+  const [chatInput, setChatInput] = useState("");
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [isChatLoading, setIsChatLoading] = useState(false);
 
   useEffect(() => {
     const historyRaw = sessionStorage.getItem("calc-ai-history");
@@ -87,6 +98,30 @@ export default function Home() {
   useEffect(() => {
     sessionStorage.setItem("calc-ai-history", JSON.stringify(history.slice(0, 10)));
   }, [history]);
+
+  useEffect(() => {
+    const sessionKey = "calc-ai-chat-session-id";
+    const chatKey = "calc-ai-chat-history";
+
+    let id = sessionStorage.getItem(sessionKey);
+    if (!id) {
+      id = `session-${Date.now()}`;
+      sessionStorage.setItem(sessionKey, id);
+    }
+    setSessionId(id);
+
+    const chatRaw = sessionStorage.getItem(chatKey);
+    if (!chatRaw) return;
+    try {
+      setChatMessages(JSON.parse(chatRaw));
+    } catch {
+      setChatMessages([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    sessionStorage.setItem("calc-ai-chat-history", JSON.stringify(chatMessages.slice(-20)));
+  }, [chatMessages]);
 
   const expressionLabel = useMemo(() => {
     if (mode === "derivatives" && derivativeType === "parametric") {
@@ -205,6 +240,49 @@ export default function Home() {
     }
   };
 
+  const onSendChat = async () => {
+    if (!chatInput.trim() || !sessionId) return;
+
+    const userMessage = chatInput.trim();
+    setChatInput("");
+    setIsChatLoading(true);
+    setChatMessages((previous) => [...previous, { role: "user", content: userMessage }]);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          session_id: sessionId,
+          message: userMessage,
+          tutor_mode: chatMode,
+          mode,
+          expression,
+          result,
+          explanation,
+        }),
+      });
+
+      if (!response.ok) {
+        const failure = await response.json();
+        throw new Error(failure.detail ?? "Chat request failed.");
+      }
+
+      const data = await response.json();
+      setChatMessages((previous) => [...previous, { role: "assistant", content: data.reply ?? "" }]);
+    } catch (requestError) {
+      setChatMessages((previous) => [
+        ...previous,
+        {
+          role: "assistant",
+          content: requestError instanceof Error ? requestError.message : "Unexpected chat error.",
+        },
+      ]);
+    } finally {
+      setIsChatLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 selection:bg-indigo-500/30">
       <header className="sticky top-0 z-10 border-b border-zinc-200/50 dark:border-zinc-800/50 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl">
@@ -214,7 +292,7 @@ export default function Home() {
           </div>
           <h1 className="text-xl font-bold tracking-tight">Calculus AI</h1>
           <div className="ml-auto text-xs font-medium px-2 py-1 rounded-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
-            Phase 2
+            Phase 3
           </div>
         </div>
       </header>
@@ -519,6 +597,65 @@ export default function Home() {
                 <p className="text-sm">Run a calculation to see the AI-generated explanation.</p>
               </div>
             )}
+          </section>
+
+          <section className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 p-6 shadow-sm">
+            <div className="mb-4 flex items-center justify-between gap-3 border-b border-zinc-100 pb-3 dark:border-zinc-800">
+              <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Tutor Chat (Phase 3)</h2>
+              <select
+                className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs dark:border-zinc-800 dark:bg-zinc-900"
+                value={chatMode}
+                onChange={(event) => setChatMode(event.target.value as TutorMode)}
+              >
+                <option value="hint">Hint Only</option>
+                <option value="socratic">Socratic</option>
+                <option value="full">Full Solution</option>
+              </select>
+            </div>
+
+            <div className="mb-4 max-h-64 space-y-3 overflow-y-auto rounded-xl border border-zinc-100 bg-zinc-50/50 p-3 dark:border-zinc-800 dark:bg-zinc-900/40">
+              {!chatMessages.length ? (
+                <p className="text-sm text-zinc-500">Ask a follow-up like "why this step?" or "show another method".</p>
+              ) : (
+                chatMessages.map((message, index) => (
+                  <div
+                    key={`${message.role}-${index}`}
+                    className={`rounded-lg px-3 py-2 text-sm ${
+                      message.role === "user"
+                        ? "ml-auto max-w-[85%] bg-indigo-600 text-white"
+                        : "max-w-[85%] bg-zinc-200/70 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100"
+                    }`}
+                  >
+                    <p className="mb-1 text-[11px] font-semibold uppercase opacity-70">{message.role}</p>
+                    <p className="whitespace-pre-wrap leading-6">{message.content}</p>
+                  </div>
+                ))
+              )}
+              {isChatLoading ? <p className="text-xs text-zinc-500">Tutor is thinking...</p> : null}
+            </div>
+
+            <div className="flex gap-2">
+              <input
+                className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm dark:border-zinc-800 dark:bg-zinc-900"
+                placeholder="Ask the tutor a follow-up question..."
+                value={chatInput}
+                onChange={(event) => setChatInput(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" && !event.shiftKey) {
+                    event.preventDefault();
+                    onSendChat();
+                  }
+                }}
+              />
+              <button
+                type="button"
+                className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-60"
+                onClick={onSendChat}
+                disabled={isChatLoading || !chatInput.trim()}
+              >
+                Send
+              </button>
+            </div>
           </section>
 
         </div>

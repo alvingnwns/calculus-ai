@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
 from app.api.routes.calculate import router as calculate_router
+from app.api.routes.chat import router as chat_router
 from app.api.routes.history import router as history_router
 from app.api.routes.plot import router as plot_router
 
@@ -29,5 +30,6 @@ async def health_check():
 
 
 app.include_router(calculate_router, prefix="/api")
+app.include_router(chat_router, prefix="/api")
 app.include_router(history_router, prefix="/api")
 app.include_router(plot_router, prefix="/api")

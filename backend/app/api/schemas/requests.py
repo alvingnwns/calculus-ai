@@ -12,6 +12,7 @@ IntegralType = Literal["definite", "indefinite"]
 SeriesType = Literal["maclaurin", "taylor"]
 SeriesPreset = Literal["sin", "cos", "ln", "exp"]
 LimitDirection = Literal["+", "-", "+-"]
+TutorMode = Literal["hint", "socratic", "full"]
 
 
 class CalculationRequest(BaseModel):
@@ -83,3 +84,26 @@ class PlotResponse(BaseModel):
 	mode: CalculationMode
 	traces: list[PlotTrace] = Field(default_factory=list)
 	message: str | None = None
+
+
+class ChatRequest(BaseModel):
+	session_id: str = Field(min_length=1, max_length=100)
+	message: str = Field(min_length=1, max_length=3000)
+	tutor_mode: TutorMode = "socratic"
+	mode: CalculationMode | None = None
+	expression: str | None = None
+	result: str | None = None
+	explanation: str | None = None
+
+
+class ChatMessage(BaseModel):
+	role: Literal["user", "assistant"]
+	content: str
+	timestamp: datetime
+
+
+class ChatResponse(BaseModel):
+	session_id: str
+	reply: str
+	tutor_mode: TutorMode
+	history: list[ChatMessage] = Field(default_factory=list)

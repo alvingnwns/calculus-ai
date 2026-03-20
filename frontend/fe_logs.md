@@ -39,3 +39,10 @@
 
 ## 2026-03-20 - Expression Input Helper Text
 - Added inline helper text under the expression input clarifying that user input supports `3x` and `^` syntax while output renders in standard notation.
+
+## 2026-03-20 - Phase 3 Chat Panel
+- Added tutor chat panel UI with mode selector (`Hint Only`, `Socratic`, `Full Solution`).
+- Added session-scoped chat persistence in `sessionStorage` for chat session ID and recent messages.
+- Integrated frontend with backend `POST /api/chat` endpoint, sending current problem context (`mode`, `expression`, `result`, `explanation`).
+- Added conversational message thread UI and send-on-enter behavior.
+- Updated page header badge to `Phase 3`.

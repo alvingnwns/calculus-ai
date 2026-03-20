@@ -40,3 +40,10 @@
 ## 2026-03-20 - Plot Notation Label Cleanup
 - Updated derivative plot trace labels to avoid caret notation (e.g., `d²f/dx²` instead of `d^2f/dx^2`).
 - Kept first derivative label concise as `df/dx` for readability.
+
+## 2026-03-20 - Phase 3 Chatbot Core
+- Added chatbot request/response schemas, including tutoring modes (`hint`, `socratic`, `full`).
+- Added in-memory chat session store for multi-turn context per session ID.
+- Added tutor chat service that uses Gemini when configured, with fallback behavior when unavailable.
+- Added `POST /api/chat` endpoint and wired chat router into FastAPI app.
+- Validated backend chat endpoint behavior with contextual payload and returned chat history.
