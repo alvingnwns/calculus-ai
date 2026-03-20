@@ -1,6 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.routes.calculate import router as calculate_router
+from app.api.routes.history import router as history_router
+
 app = FastAPI(
     title="Calculus AI Tutor API",
     description="Backend for solving and explaining complex calculus problems.",
@@ -19,3 +22,7 @@ app.add_middleware(
 @app.get("/health")
 async def health_check():
     return {"status": "healthy", "message": "The Calculus AI engine is online."}
+
+
+app.include_router(calculate_router, prefix="/api")
+app.include_router(history_router, prefix="/api")
