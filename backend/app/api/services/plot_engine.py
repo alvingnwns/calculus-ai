@@ -7,6 +7,31 @@ from app.api.schemas.requests import PlotRequest, PlotResponse, PlotTrace
 from app.api.services.expression_parser import parse_math_expression
 
 
+SUPERSCRIPT_MAP = {
+    "0": "⁰",
+    "1": "¹",
+    "2": "²",
+    "3": "³",
+    "4": "⁴",
+    "5": "⁵",
+    "6": "⁶",
+    "7": "⁷",
+    "8": "⁸",
+    "9": "⁹",
+}
+
+
+def _to_superscript(value: int) -> str:
+    return "".join(SUPERSCRIPT_MAP[digit] for digit in str(value))
+
+
+def _derivative_trace_name(order: int) -> str:
+    if order == 1:
+        return "df/dx"
+    superscript = _to_superscript(order)
+    return f"d{superscript}f/dx{superscript}"
+
+
 def _sample_expression(expr, variable: Symbol, x_min: float, x_max: float, points: int) -> tuple[list[float], list[float]]:
     function = lambdify(variable, expr, modules=["math"])
     step = (x_max - x_min) / (points - 1)
@@ -44,7 +69,7 @@ def _build_derivative_traces(request: PlotRequest) -> list[PlotTrace]:
     for order in range(1, request.derivative_order + 1):
         current = diff(current, variable)
         x_values, y_values = _sample_expression(current, variable, request.x_min, request.x_max, request.points)
-        traces.append(PlotTrace(name=f"d^{order}f/dx^{order}", x=x_values, y=y_values))
+        traces.append(PlotTrace(name=_derivative_trace_name(order), x=x_values, y=y_values))
 
     return traces
 

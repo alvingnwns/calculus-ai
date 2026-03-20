@@ -30,10 +30,18 @@ const SYMBOLS = ["sin(", "cos(", "tan(", "log(", "e^(", "^", "sqrt(", "pi", "oo"
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000/api";
 
 function toLatexSafe(value: string) {
-  return value
+  let latex = value
     .replaceAll("**", "^")
-    .replaceAll("*", " \\\\cdot ")
-    .replaceAll("oo", "\\infty");
+    .replaceAll("oo", "\\infty")
+    .replace(/\s*\*\s*/g, "*");
+
+  latex = latex
+    .replace(/(\d)\*([a-zA-Z(])/g, "$1$2")
+    .replace(/([a-zA-Z)\]])\*([a-zA-Z(])/g, "$1$2")
+    .replace(/\^(\-?\d+|[a-zA-Z]+)/g, "^{$1}")
+    .replace(/\*/g, " \\cdot ");
+
+  return latex;
 }
 
 export default function Home() {

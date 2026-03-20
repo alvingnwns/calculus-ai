@@ -31,3 +31,8 @@
 - Updated history cards to be clickable so users can load prior result and explanation from session history.
 - Added result preview line to each history item for faster recall.
 - Added user hint text to clarify interaction behavior (`Click an item to load its result and explanation`).
+
+## 2026-03-20 - Notation Output Formatting
+- Updated result LaTeX formatter to prefer simple algebra multiplication (`2x`) instead of always forcing a dot operator.
+- Fixed multiplication rendering artifact where `\cdot` text appeared due to over-escaped output.
+- Improved exponent rendering to display as superscript (`x²`) via proper LaTeX exponent grouping.

@@ -36,3 +36,7 @@
 - Updated `math_engine` to use the shared parser across limits, derivatives, integrals, and series expression handling.
 - Updated `plot_engine` to use the same parser so `/api/plot` behavior matches `/api/calculate`.
 - Validated derivative and plot generation for input `sin(x)^2 - 3x`.
+
+## 2026-03-20 - Plot Notation Label Cleanup
+- Updated derivative plot trace labels to avoid caret notation (e.g., `d²f/dx²` instead of `d^2f/dx^2`).
+- Kept first derivative label concise as `df/dx` for readability.
