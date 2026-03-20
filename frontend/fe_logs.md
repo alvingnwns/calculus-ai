@@ -61,3 +61,7 @@
 - Extracted calculation and chat orchestration into hooks: `frontend/app/hooks/useCalculation.ts` and `frontend/app/hooks/useTutorChat.ts`.
 - Reduced `frontend/app/page.tsx` to 42 lines while preserving behavior.
 - Confirmed the app still compiles and type-checks after hook extraction.
+
+## 2026-03-20 - Chat Newline Formatting Cleanup
+- Removed assistant chat bubble `whitespace-pre-wrap` behavior so markdown and inline math render with natural paragraph spacing.
+- Added reply normalization in `useTutorChat` to collapse excessive blank lines before rendering.

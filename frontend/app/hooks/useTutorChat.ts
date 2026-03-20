@@ -9,6 +9,13 @@ type ChatContext = {
   explanation: string;
 };
 
+function normalizeAssistantReply(raw: string): string {
+  return raw
+    .replace(/\r\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 export function useTutorChat(apiBaseUrl: string, context: ChatContext) {
   const [sessionId, setSessionId] = useState("");
   const [chatMode, setChatMode] = useState<TutorMode>("socratic");
@@ -69,7 +76,8 @@ export function useTutorChat(apiBaseUrl: string, context: ChatContext) {
       }
 
       const data = await response.json();
-      setChatMessages((previous) => [...previous, { role: "assistant", content: data.reply ?? "" }]);
+      const reply = normalizeAssistantReply(String(data.reply ?? ""));
+      setChatMessages((previous) => [...previous, { role: "assistant", content: reply }]);
     } catch (requestError) {
       setChatMessages((previous) => [
         ...previous,

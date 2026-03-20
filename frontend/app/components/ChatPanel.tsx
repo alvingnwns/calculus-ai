@@ -53,7 +53,7 @@ export function ChatPanel({
             >
               <p className="mb-1 text-[11px] font-semibold uppercase opacity-70">{message.role}</p>
               {message.role === "assistant" ? (
-                <div className="prose prose-sm max-w-none whitespace-pre-wrap leading-6 prose-p:my-2 dark:prose-invert">
+                <div className="prose prose-sm max-w-none break-words leading-6 prose-p:my-2 dark:prose-invert">
                   <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
                     {message.content}
                   </ReactMarkdown>
