@@ -46,3 +46,7 @@
 - Integrated frontend with backend `POST /api/chat` endpoint, sending current problem context (`mode`, `expression`, `result`, `explanation`).
 - Added conversational message thread UI and send-on-enter behavior.
 - Updated page header badge to `Phase 3`.
+
+## 2026-03-20 - Chat Equation Rendering Fix
+- Updated assistant chat bubbles to render markdown and inline/block math via `ReactMarkdown + remark-math + rehype-katex`.
+- Fixed raw equation text display (e.g., `$\\sin(x)$`) by applying the same math renderer stack used in the explanation panel.

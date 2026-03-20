@@ -615,7 +615,7 @@ export default function Home() {
 
             <div className="mb-4 max-h-64 space-y-3 overflow-y-auto rounded-xl border border-zinc-100 bg-zinc-50/50 p-3 dark:border-zinc-800 dark:bg-zinc-900/40">
               {!chatMessages.length ? (
-                <p className="text-sm text-zinc-500">Ask a follow-up like "why this step?" or "show another method".</p>
+                <p className="text-sm text-zinc-500">Ask a follow-up like why this step? or show another method.</p>
               ) : (
                 chatMessages.map((message, index) => (
                   <div
@@ -627,7 +627,15 @@ export default function Home() {
                     }`}
                   >
                     <p className="mb-1 text-[11px] font-semibold uppercase opacity-70">{message.role}</p>
-                    <p className="whitespace-pre-wrap leading-6">{message.content}</p>
+                    {message.role === "assistant" ? (
+                      <div className="prose prose-sm max-w-none whitespace-pre-wrap leading-6 prose-p:my-2 dark:prose-invert">
+                        <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+                          {message.content}
+                        </ReactMarkdown>
+                      </div>
+                    ) : (
+                      <p className="whitespace-pre-wrap leading-6">{message.content}</p>
+                    )}
                   </div>
                 ))
               )}
