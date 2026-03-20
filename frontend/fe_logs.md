@@ -20,3 +20,8 @@
 - Added KaTeX rendering for result display with fallback to plain text.
 - Added graph panel powered by backend plot data.
 - Integrated frontend with `POST /api/plot` after solve for derivatives and integrals.
+## 2026-03-20 - Phase 2 Design Polish
+- Installed \eact-markdown\, \emark-math\, \ehype-katex\, \@tailwindcss/typography\, \clsx\, \	ailwind-merge\, \lucide-react\.
+- Completely restructured the \rontend/app/page.tsx\ UI to a modern two-column layout (Left: Input Panel & History; Right: Output Canvas).
+- Upgraded the AI explanation panel to strictly format markdown with LaTeX math outputs utilizing tailwind typography \prose\.
+- Integrated Lucide icons for semantic feedback markers and structural layout.
