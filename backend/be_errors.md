@@ -1,1 +1,2 @@
 - 2026-03-20: Initially created root `logs.md` and `errors.md` by mistake; removed both and switched to `backend/be_*` and `frontend/fe_*` tracking files.
+- 2026-03-20: Initial PowerShell server start command used quoted executable without call operator, causing `Unexpected token '-m'`; fixed by invoking executable with `&`.

@@ -14,3 +14,13 @@
 - Added in-memory history store with max 10 entries.
 - Added API routes: `POST /api/calculate` and `GET /api/history`.
 - Wired routes into FastAPI app startup.
+
+## 2026-03-20 - Environment Setup
+- Created backend `.env` file with `GEMINI_API_KEY` and `GEMINI_MODEL` placeholders for local secret configuration.
+- Fixed root `.gitignore` entry to ignore `backend/.env` and prevent accidental secret commits.
+
+## 2026-03-20 - Runtime Env Loading and Validation
+- Updated backend startup to load environment variables from `.env` using `python-dotenv`.
+- Verified `GET /health` response is healthy while running locally.
+- Verified `POST /api/calculate` returns symbolic result and Gemini-generated explanation with configured API key.
+- Ran frontend lint successfully after integration changes.
