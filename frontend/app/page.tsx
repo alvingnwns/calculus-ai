@@ -184,6 +184,19 @@ export default function Home() {
     }
   };
 
+  const onSelectHistory = (item: HistoryEntry) => {
+    setMode(item.mode);
+    setError("");
+    setResult(item.result);
+    setExplanation(item.explanation ?? "");
+    setPlotTraces([]);
+    if (item.mode === "derivatives" || item.mode === "integral") {
+      setPlotMessage("Loaded from history. Click Solve Expression to regenerate the graph.");
+    } else {
+      setPlotMessage("");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 selection:bg-indigo-500/30">
       <header className="sticky top-0 z-10 border-b border-zinc-200/50 dark:border-zinc-800/50 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl">
@@ -375,13 +388,17 @@ export default function Home() {
               <Library className="h-4 w-4 text-zinc-500" />
               <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Recent Computations</h2>
             </div>
+            <p className="mb-3 text-xs text-zinc-500">Click an item to load its result and explanation.</p>
             <ul className="space-y-3 flex-1 overflow-y-auto pr-2 scrollbar-thin">
               {history.map((item, index) => (
                 <li key={`${item.expressionLabel}-${index}`} className="group rounded-xl border border-zinc-100 dark:border-zinc-800/80 bg-zinc-50/50 dark:bg-zinc-900/30 p-3 text-sm transition-colors hover:border-indigo-200 dark:hover:border-indigo-900/50">
-                  <div className="flex items-center justify-between text-xs text-zinc-500 mb-1.5">
-                    <span className="capitalize">{item.mode}</span>
-                  </div>
-                  <p className="font-mono text-zinc-800 dark:text-zinc-200 mb-1 truncate">{item.expressionLabel}</p>
+                  <button type="button" onClick={() => onSelectHistory(item)} className="w-full text-left">
+                    <div className="flex items-center justify-between text-xs text-zinc-500 mb-1.5">
+                      <span className="capitalize">{item.mode}</span>
+                    </div>
+                    <p className="font-mono text-zinc-800 dark:text-zinc-200 mb-1 truncate">{item.expressionLabel}</p>
+                    <p className="truncate text-xs text-zinc-500">Result: {item.result || "-"}</p>
+                  </button>
                 </li>
               ))}
               {!history.length && (

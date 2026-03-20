@@ -20,8 +20,14 @@
 - Added KaTeX rendering for result display with fallback to plain text.
 - Added graph panel powered by backend plot data.
 - Integrated frontend with `POST /api/plot` after solve for derivatives and integrals.
+
 ## 2026-03-20 - Phase 2 Design Polish
-- Installed \eact-markdown\, \emark-math\, \ehype-katex\, \@tailwindcss/typography\, \clsx\, \	ailwind-merge\, \lucide-react\.
-- Completely restructured the \rontend/app/page.tsx\ UI to a modern two-column layout (Left: Input Panel & History; Right: Output Canvas).
-- Upgraded the AI explanation panel to strictly format markdown with LaTeX math outputs utilizing tailwind typography \prose\.
-- Integrated Lucide icons for semantic feedback markers and structural layout.
+- Installed `react-markdown`, `remark-math`, `rehype-katex`, `@tailwindcss/typography`, `clsx`, `tailwind-merge`, `lucide-react`.
+- Completely restructured `frontend/app/page.tsx` UI to a modern two-column layout (Left: Input Panel + History; Right: Output Canvas).
+- Upgraded the AI explanation panel to render markdown and LaTeX with Tailwind `prose` styles.
+- Added icon-led visual hierarchy and refined section readability.
+
+## 2026-03-20 - Recent Computations Access Fix
+- Updated history cards to be clickable so users can load prior result and explanation from session history.
+- Added result preview line to each history item for faster recall.
+- Added user hint text to clarify interaction behavior (`Click an item to load its result and explanation`).
