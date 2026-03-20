@@ -82,7 +82,7 @@ export default function Home() {
 
   const expressionLabel = useMemo(() => {
     if (mode === "derivatives" && derivativeType === "parametric") {
-      return \x(\)=\, y(\)=\\;
+      return `x(${variable})=${parametricX}, y(${variable})=${parametricY}`;
     }
     return expression || "-";
   }, [derivativeType, expression, mode, parametricX, parametricY, variable]);
@@ -133,7 +133,7 @@ export default function Home() {
 
     try {
       const payload = buildPayload();
-      const response = await fetch(\\/calculate\, {
+      const response = await fetch(`${API_BASE_URL}/calculate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -159,7 +159,7 @@ export default function Home() {
 
       const shouldPlot = mode === "derivatives" || mode === "integral";
       if (shouldPlot) {
-        const plotResponse = await fetch(\\/plot\, {
+        const plotResponse = await fetch(`${API_BASE_URL}/plot`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ ...payload, x_min: -10, x_max: 10, points: 250 }),
@@ -237,7 +237,7 @@ export default function Home() {
                     key={symbol}
                     type="button"
                     className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/80 px-2.5 py-1.5 text-xs font-mono text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors shadow-sm"
-                    onClick={() => setExpression((previous) => \\\\)}
+                    onClick={() => setExpression((previous) => `${previous}${symbol}`)}
                   >
                     {symbol}
                   </button>
@@ -377,7 +377,7 @@ export default function Home() {
             </div>
             <ul className="space-y-3 flex-1 overflow-y-auto pr-2 scrollbar-thin">
               {history.map((item, index) => (
-                <li key={\\-\\} className="group rounded-xl border border-zinc-100 dark:border-zinc-800/80 bg-zinc-50/50 dark:bg-zinc-900/30 p-3 text-sm transition-colors hover:border-indigo-200 dark:hover:border-indigo-900/50">
+                <li key={`${item.expressionLabel}-${index}`} className="group rounded-xl border border-zinc-100 dark:border-zinc-800/80 bg-zinc-50/50 dark:bg-zinc-900/30 p-3 text-sm transition-colors hover:border-indigo-200 dark:hover:border-indigo-900/50">
                   <div className="flex items-center justify-between text-xs text-zinc-500 mb-1.5">
                     <span className="capitalize">{item.mode}</span>
                   </div>
