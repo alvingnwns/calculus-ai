@@ -1,6 +1,8 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
+import { BlockMath } from "react-katex";
 
 type Mode = "limits" | "derivatives" | "integral" | "series";
 type HistoryEntry = {
@@ -10,9 +12,26 @@ type HistoryEntry = {
   explanation?: string | null;
 };
 
+type PlotTrace = {
+  name: string;
+  x: number[];
+  y: number[];
+  mode?: "lines";
+  fill?: "none" | "tozeroy";
+};
+
+const Plot = dynamic(() => import("react-plotly.js"), { ssr: false });
+
 const SYMBOLS = ["sin(", "cos(", "tan(", "log(", "e^(", "^", "sqrt(", "pi", "oo", "I"];
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000/api";
+
+function toLatexSafe(value: string) {
+  return value
+    .replaceAll("**", "^")
+    .replaceAll("*", " \\\\cdot ")
+    .replaceAll("oo", "\\infty");
+}
 
 export default function Home() {
   const [mode, setMode] = useState<Mode>("limits");
@@ -41,6 +60,8 @@ export default function Home() {
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [plotTraces, setPlotTraces] = useState<PlotTrace[]>([]);
+  const [plotMessage, setPlotMessage] = useState("");
 
   useEffect(() => {
     const historyRaw = sessionStorage.getItem("calc-ai-history");
@@ -115,12 +136,14 @@ export default function Home() {
   const onSolve = async () => {
     setError("");
     setIsLoading(true);
+    setPlotMessage("");
 
     try {
+      const payload = buildPayload();
       const response = await fetch(`${API_BASE_URL}/calculate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(buildPayload()),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -140,18 +163,44 @@ export default function Home() {
         },
         ...previous,
       ].slice(0, 10));
+
+      const shouldPlot = mode === "derivatives" || mode === "integral";
+      if (shouldPlot) {
+        const plotResponse = await fetch(`${API_BASE_URL}/plot`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...payload,
+            x_min: -10,
+            x_max: 10,
+            points: 250,
+          }),
+        });
+
+        if (plotResponse.ok) {
+          const plotData = await plotResponse.json();
+          setPlotTraces(plotData.traces ?? []);
+          setPlotMessage(plotData.message ?? "");
+        } else {
+          setPlotTraces([]);
+          setPlotMessage("Graph data could not be generated for this input.");
+        }
+      } else {
+        setPlotTraces([]);
+      }
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : "Unexpected error.");
+      setPlotTraces([]);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-6 md:px-8">
-      <h1 className="text-2xl font-semibold">Calculus AI (Phase 1)</h1>
+    <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 px-4 py-6 md:px-8">
+      <h1 className="text-3xl font-semibold">Calculus AI (Phase 2 Start)</h1>
 
-      <section className="grid gap-6 rounded-lg border border-zinc-300 p-4 dark:border-zinc-700 md:grid-cols-3">
+      <section className="grid gap-6 rounded-lg border border-zinc-300 p-5 dark:border-zinc-700 md:grid-cols-3">
         <div className="md:col-span-2 space-y-4">
           <div className="grid gap-3 md:grid-cols-3">
             <label className="space-y-1">
@@ -315,9 +364,49 @@ export default function Home() {
         <div className="space-y-3 rounded border border-zinc-300 p-3 dark:border-zinc-700">
           <h2 className="font-semibold">Output</h2>
           {error ? <p className="text-sm text-red-600">{error}</p> : null}
-          <p className="text-sm"><span className="font-semibold">Result:</span> {result || "-"}</p>
-          <p className="text-sm whitespace-pre-wrap"><span className="font-semibold">Explanation:</span> {explanation || "-"}</p>
+          <div className="space-y-2 text-sm">
+            <p className="font-semibold">Result</p>
+            {result ? (
+              <BlockMath math={toLatexSafe(result)} renderError={() => <p>{result}</p>} />
+            ) : (
+              <p>-</p>
+            )}
+          </div>
+          <div className="space-y-2 text-sm">
+            <p className="font-semibold">Explanation</p>
+            <p className="whitespace-pre-wrap leading-7 text-zinc-700 dark:text-zinc-300">{explanation || "-"}</p>
+          </div>
         </div>
+      </section>
+
+      <section className="rounded-lg border border-zinc-300 p-4 dark:border-zinc-700">
+        <h2 className="mb-3 text-lg font-semibold">Graph</h2>
+        {plotMessage ? <p className="mb-3 text-sm text-zinc-500">{plotMessage}</p> : null}
+        {plotTraces.length ? (
+          <Plot
+            data={plotTraces.map((trace, index) => ({
+              x: trace.x,
+              y: trace.y,
+              type: "scatter",
+              mode: "lines",
+              name: trace.name,
+              fill: trace.fill === "tozeroy" ? "tozeroy" : undefined,
+              line: { width: index === 0 ? 3 : 2 },
+            }))}
+            layout={{
+              autosize: true,
+              height: 420,
+              paper_bgcolor: "transparent",
+              plot_bgcolor: "transparent",
+              margin: { t: 20, l: 40, r: 20, b: 40 },
+            }}
+            style={{ width: "100%" }}
+            useResizeHandler
+            config={{ responsive: true, displaylogo: false }}
+          />
+        ) : (
+          <p className="text-sm text-zinc-500">Solve a derivative or integral to see a graph.</p>
+        )}
       </section>
 
       <section className="rounded-lg border border-zinc-300 p-4 dark:border-zinc-700">

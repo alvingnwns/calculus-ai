@@ -13,3 +13,10 @@
 - Integrated frontend with backend `POST /api/calculate` endpoint and displayed result/explanation.
 - Implemented single-user session history in `sessionStorage` capped to last 10 solved problems.
 - Added `frontend/.env.local` with `NEXT_PUBLIC_API_BASE_URL` for backend connectivity.
+
+## 2026-03-20 - Phase 2 UX and Visualization Start
+- Installed KaTeX and Plotly dependencies (`react-katex`, `katex`, `react-plotly.js`, `plotly.js-dist-min`).
+- Upgraded frontend layout and output panel readability.
+- Added KaTeX rendering for result display with fallback to plain text.
+- Added graph panel powered by backend plot data.
+- Integrated frontend with `POST /api/plot` after solve for derivatives and integrals.

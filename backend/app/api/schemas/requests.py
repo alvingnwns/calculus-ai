@@ -63,3 +63,23 @@ class HistoryItem(BaseModel):
 class HistoryResponse(BaseModel):
 	total: int
 	items: list[HistoryItem]
+
+
+class PlotRequest(CalculationRequest):
+	x_min: float = -10.0
+	x_max: float = 10.0
+	points: int = Field(default=201, ge=25, le=1000)
+
+
+class PlotTrace(BaseModel):
+	name: str
+	x: list[float]
+	y: list[float]
+	mode: Literal["lines"] = "lines"
+	fill: Literal["none", "tozeroy"] = "none"
+
+
+class PlotResponse(BaseModel):
+	mode: CalculationMode
+	traces: list[PlotTrace] = Field(default_factory=list)
+	message: str | None = None

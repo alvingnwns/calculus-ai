@@ -24,3 +24,9 @@
 - Verified `GET /health` response is healthy while running locally.
 - Verified `POST /api/calculate` returns symbolic result and Gemini-generated explanation with configured API key.
 - Ran frontend lint successfully after integration changes.
+
+## 2026-03-20 - Phase 2 Graph API Start
+- Added plot request/response schemas and trace models for graph payloads.
+- Added `POST /api/plot` endpoint for frontend graph rendering.
+- Implemented graph data service for explicit derivative curves and integral curve/area shading.
+- Registered plot route in FastAPI startup.
