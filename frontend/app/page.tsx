@@ -249,6 +249,9 @@ export default function Home() {
                     value={expression}
                     onChange={(event) => setExpression(event.target.value)}
                   />
+                  <span className="block text-xs text-zinc-500 dark:text-zinc-400">
+                    Supports inputs like <strong>3x</strong> and <strong>^</strong>; results render in standard notation.
+                  </span>
                 </label>
               )}
 

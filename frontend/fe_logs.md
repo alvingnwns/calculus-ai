@@ -36,3 +36,6 @@
 - Updated result LaTeX formatter to prefer simple algebra multiplication (`2x`) instead of always forcing a dot operator.
 - Fixed multiplication rendering artifact where `\cdot` text appeared due to over-escaped output.
 - Improved exponent rendering to display as superscript (`x²`) via proper LaTeX exponent grouping.
+
+## 2026-03-20 - Expression Input Helper Text
+- Added inline helper text under the expression input clarifying that user input supports `3x` and `^` syntax while output renders in standard notation.
