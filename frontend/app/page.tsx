@@ -201,7 +201,7 @@ export default function Home() {
       <main className="mx-auto flex w-full max-w-7xl flex-col lg:flex-row gap-6 p-4 md:p-8">
         
         {/* Left Column: Input Panel */}
-        <div className="flex w-full lg:w-400 flex-col gap-6">
+        <div className="flex w-full lg:w-[400px] shrink-0 flex-col gap-6">
           <section className="flex flex-col gap-5 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 p-6 shadow-sm">
             <div className="space-y-4">
               <label className="block space-y-2">
