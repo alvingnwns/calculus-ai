@@ -1,2 +1,3 @@
 - 2026-03-20: Initially created root `logs.md` and `errors.md` by mistake; removed both and switched to `backend/be_*` and `frontend/fe_*` tracking files.
 - 2026-03-20: Initial PowerShell server start command used quoted executable without call operator, causing `Unexpected token '-m'`; fixed by invoking executable with `&`.
+- 2026-03-20: `POST /api/calculate` failed for valid user-style expressions like `sin(x)^2 - 3x` with `Sympify ... could not parse` due to implicit multiplication (`3x`) and caret exponent syntax (`^`) not being accepted by raw `sympify`. Fixed by switching to a shared parser (`parse_expr` + `implicit_multiplication_application` + `convert_xor`) and applying it to both `math_engine` and `plot_engine`.

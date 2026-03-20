@@ -30,3 +30,9 @@
 - Added `POST /api/plot` endpoint for frontend graph rendering.
 - Implemented graph data service for explicit derivative curves and integral curve/area shading.
 - Registered plot route in FastAPI startup.
+
+## 2026-03-20 - Complex Expression Parsing Fix
+- Added shared expression parser service to support implicit multiplication and caret exponent input (e.g., `3x`, `sin(x)^2`).
+- Updated `math_engine` to use the shared parser across limits, derivatives, integrals, and series expression handling.
+- Updated `plot_engine` to use the same parser so `/api/plot` behavior matches `/api/calculate`.
+- Validated derivative and plot generation for input `sin(x)^2 - 3x`.

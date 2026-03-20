@@ -8,12 +8,13 @@ from sympy import oo as infinity
 from sympy import sympify
 
 from app.api.schemas.requests import CalculationRequest
+from app.api.services.expression_parser import parse_math_expression
 
 
 def _sympify_value(raw: str | None):
 	if raw is None:
 		return None
-	return sympify(raw, locals={"oo": infinity})
+	return parse_math_expression(raw)
 
 
 def _require_expression(request: CalculationRequest) -> str:
@@ -28,7 +29,7 @@ def _solve_limit(request: CalculationRequest) -> dict[str, Any]:
 		raise HTTPException(status_code=400, detail="`point` is required for limits.")
 
 	variable = Symbol(request.variable)
-	expression = sympify(expression_text, locals={"oo": infinity})
+	expression = parse_math_expression(expression_text)
 	point = _sympify_value(request.point)
 	direction = "+" if request.limit_direction == "+-" else request.limit_direction
 
@@ -47,7 +48,7 @@ def _solve_limit(request: CalculationRequest) -> dict[str, Any]:
 def _solve_explicit_derivative(request: CalculationRequest) -> dict[str, Any]:
 	expression_text = _require_expression(request)
 	variable = Symbol(request.variable)
-	expression = sympify(expression_text, locals={"oo": infinity})
+	expression = parse_math_expression(expression_text)
 
 	derivatives: list[str] = []
 	current = expression
@@ -71,9 +72,9 @@ def _solve_implicit_derivative(request: CalculationRequest) -> dict[str, Any]:
 
 	if "=" in expression_text:
 		lhs, rhs = expression_text.split("=", 1)
-		equation = simplify(sympify(lhs) - sympify(rhs))
+		equation = simplify(parse_math_expression(lhs) - parse_math_expression(rhs))
 	else:
-		equation = simplify(sympify(expression_text))
+		equation = simplify(parse_math_expression(expression_text))
 
 	fx = diff(equation, x)
 	fy = diff(equation, y)
@@ -103,8 +104,8 @@ def _solve_parametric_derivative(request: CalculationRequest) -> dict[str, Any]:
 		raise HTTPException(status_code=400, detail="`parametric_x` and `parametric_y` are required for parametric derivatives.")
 
 	t = Symbol(request.variable)
-	x_t = sympify(request.parametric_x)
-	y_t = sympify(request.parametric_y)
+	x_t = parse_math_expression(request.parametric_x)
+	y_t = parse_math_expression(request.parametric_y)
 	dx_dt = diff(x_t, t)
 
 	if dx_dt == 0:
@@ -139,7 +140,7 @@ def _solve_derivative(request: CalculationRequest) -> dict[str, Any]:
 def _solve_integral(request: CalculationRequest) -> dict[str, Any]:
 	expression_text = _require_expression(request)
 	variable = Symbol(request.variable)
-	expression = sympify(expression_text, locals={"oo": infinity})
+	expression = parse_math_expression(expression_text)
 
 	if request.integral_type == "indefinite":
 		answer = simplify(integrate(expression, variable))
@@ -185,11 +186,11 @@ def _solve_series(request: CalculationRequest) -> dict[str, Any]:
 		}
 		expression = presets[request.series_preset]
 	elif request.expression:
-		expression = sympify(request.expression)
+		expression = parse_math_expression(request.expression)
 	else:
 		raise HTTPException(status_code=400, detail="Provide either `series_preset` or `expression` for series mode.")
 
-	center = sympify("0") if request.series_type == "maclaurin" else _sympify_value(request.series_center)
+	center = parse_math_expression("0") if request.series_type == "maclaurin" else _sympify_value(request.series_center)
 	if center is None:
 		raise HTTPException(status_code=400, detail="`series_center` is required for Taylor series.")
 

@@ -4,6 +4,7 @@ from fastapi import HTTPException
 from sympy import Symbol, diff, lambdify, sympify
 
 from app.api.schemas.requests import PlotRequest, PlotResponse, PlotTrace
+from app.api.services.expression_parser import parse_math_expression
 
 
 def _sample_expression(expr, variable: Symbol, x_min: float, x_max: float, points: int) -> tuple[list[float], list[float]]:
@@ -32,7 +33,7 @@ def _build_derivative_traces(request: PlotRequest) -> list[PlotTrace]:
         return []
 
     variable = Symbol(request.variable)
-    expression = sympify(request.expression)
+    expression = parse_math_expression(request.expression)
 
     traces: list[PlotTrace] = []
 
@@ -53,7 +54,7 @@ def _build_integral_traces(request: PlotRequest) -> list[PlotTrace]:
         return []
 
     variable = Symbol(request.variable)
-    expression = sympify(request.expression)
+    expression = parse_math_expression(request.expression)
     traces: list[PlotTrace] = []
 
     x_values, y_values = _sample_expression(expression, variable, request.x_min, request.x_max, request.points)
@@ -62,8 +63,8 @@ def _build_integral_traces(request: PlotRequest) -> list[PlotTrace]:
     if request.integral_type != "definite" or request.lower_bound is None or request.upper_bound is None:
         return traces
 
-    lower = float(sympify(request.lower_bound))
-    upper = float(sympify(request.upper_bound))
+    lower = float(parse_math_expression(request.lower_bound))
+    upper = float(parse_math_expression(request.upper_bound))
     integral_min = min(lower, upper)
     integral_max = max(lower, upper)
 
