@@ -5,3 +5,4 @@
 - 2026-03-20: Result notation showed literal `cdot` text and caret-style powers due to over-escaped multiplication formatting in frontend LaTeX conversion. Fixed by normalizing multiplication formatting (implicit `2x` where simple) and correcting LaTeX escaping/exponent grouping.
 - 2026-03-20: Phase 3 chat panel integration completed with no new blocking frontend build/type errors.
 - 2026-03-20: Assistant chat responses rendered math as raw text (e.g., `$\\sin(x)$`) because chat bubbles used plain text rendering instead of markdown+math rendering. Fixed by rendering assistant messages with `ReactMarkdown`, `remark-math`, and `rehype-katex`.
+- 2026-03-20: `page.tsx` bloat concern addressed via hook extraction; no new blocking compile/type issues after reducing file size.

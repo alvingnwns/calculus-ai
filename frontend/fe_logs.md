@@ -56,3 +56,8 @@
 - Added shared component types in `frontend/app/components/types.ts`.
 - Rewrote `frontend/app/page.tsx` as a cleaner orchestration layer (state, API calls, and handler wiring only).
 - Verified frontend build after refactor with no regressions.
+
+## 2026-03-20 - Sub-100 `page.tsx` Refactor
+- Extracted calculation and chat orchestration into hooks: `frontend/app/hooks/useCalculation.ts` and `frontend/app/hooks/useTutorChat.ts`.
+- Reduced `frontend/app/page.tsx` to 42 lines while preserving behavior.
+- Confirmed the app still compiles and type-checks after hook extraction.
